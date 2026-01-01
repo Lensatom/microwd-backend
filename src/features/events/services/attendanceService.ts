@@ -41,7 +41,7 @@ function verifyAttendance(token: string) {
     const decoded = jwt.verify(token, secret);
     return { isValid: true, decoded };
   } catch (err) {
-    return { isValid: false, error: err };
+    return { isValid: false };
   }
 }
 

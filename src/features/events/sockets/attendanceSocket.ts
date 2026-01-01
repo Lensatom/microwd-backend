@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import { endAttendanceTokensStream, streamAttendanceTokens } from "../services/attendanceService";
+import { endAttendanceTokensStream, streamAttendanceTokens, verifyAttendance } from "../services/attendanceService";
 
 function registerAttendanceNamespace(io: Server) {
   const attendanceNs = io.of('/events');
@@ -21,8 +21,13 @@ function registerAttendanceNamespace(io: Server) {
       streamAttendanceTokens(sessionId, event);
     });
 
-    socket.on('markAttendance', (data) => {
+    socket.on('record-attendance', (data, callbackFunction) => {
       console.log('Attendance marked:', data);
+      const verificationResult = verifyAttendance(data.data.token);
+      if (callbackFunction) {
+        console.log({verificationResult})
+        callbackFunction(verificationResult);
+      }
     });
 
     socket.on('disconnect', () => {
