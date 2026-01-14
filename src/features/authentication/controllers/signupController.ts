@@ -17,10 +17,8 @@ export async function signupController(req: Request, res: Response) {
       picture,
     } = payload;
 
-    // 1. Find user in DB
     let user = await User.findOne({ google_id });
 
-    // 2. If not exists, create user
     if (!user) {
       user = await User.create({
         google_id,
@@ -31,7 +29,6 @@ export async function signupController(req: Request, res: Response) {
       });
     }
 
-    // 3. Create your own JWT
     const appToken = jwt.sign(
       { userId: user.id },
       JWT_SECRET as string,
