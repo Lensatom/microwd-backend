@@ -35,7 +35,7 @@ export async function signupController(req: Request, res: Response) {
       { expiresIn: "7d" }
     );
 
-    res.json({
+    res.status(200).json({
       token: appToken,
       user,
     });

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { signupController } from "../controllers/signupController";
 
-const authRouter = Router();
+export const authRouter = Router();
 
-authRouter.post('/signup', signupController);
+authRouter.post('/signup/google', signupController);
