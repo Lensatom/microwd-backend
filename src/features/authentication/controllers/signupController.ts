@@ -13,7 +13,8 @@ export async function signupController(req: Request, res: Response) {
     const {
       sub: google_id,
       email,
-      name,
+      given_name: first_name,
+      family_name: last_name,
       picture,
     } = payload;
 
@@ -23,7 +24,8 @@ export async function signupController(req: Request, res: Response) {
       user = await User.create({
         google_id,
         email,
-        name,
+        first_name,
+        last_name,
         avatar: picture,
         provider: "google",
       });
@@ -41,6 +43,7 @@ export async function signupController(req: Request, res: Response) {
     });
 
   } catch (err) {
+    console.log(err)
     res.status(401).json({ message: "Invalid Google token" });
   }
 }
