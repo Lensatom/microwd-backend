@@ -1,3 +1,4 @@
+import { verifyJWT } from "../../../services/verifyJWT";
 import { getIO } from "../../../socket";
 import jwt from "jsonwebtoken";
 
@@ -5,7 +6,9 @@ const secret = process.env.JWT_SECRET || 'dev-secret';
 
 let attendanceTokenIntervals: { [key: string]: NodeJS.Timeout } = {};
 
-function streamAttendanceTokens(sessionId: string, event: { id: string; name?: string }) {
+function streamAttendanceTokens(socket: any, event: { id: string; name?: string }) {
+  const sessionId = socket.id;
+  
   const intervalInSeconds = 5;
 
   if (!event || !event.id) {
@@ -18,6 +21,14 @@ function streamAttendanceTokens(sessionId: string, event: { id: string; name?: s
 
   attendanceTokenIntervals[sessionId] = setInterval(() => {
     try {
+      const { isValid } = verifyJWT(socket.handshake.auth?.token || '');
+      if (!isValid) {
+        socket.emit('attendance-error', { message: 'Unauthorized: Invalid or missing token' });
+        socket.disconnect();
+        endAttendanceTokensStream(sessionId);
+        return;
+      }
+      
       const payload = { eventId: event.id, name: event.name };
       const attendanceToken = jwt.sign(payload, secret, { expiresIn: `${intervalInSeconds}s` });
       attendanceNs.to(sessionId).emit('new-attendance-token', { attendanceToken });

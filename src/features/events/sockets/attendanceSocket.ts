@@ -28,7 +28,7 @@ function registerAttendanceNamespace(io: Server) {
         socket.emit('attendance-error', { message: 'event payload is required (include event or eventId)' });
         return;
       }
-      streamAttendanceTokens(sessionId, event);
+      streamAttendanceTokens(socket, event);
     });
 
     socket.on('record-attendance', (data, callbackFunction) => {
