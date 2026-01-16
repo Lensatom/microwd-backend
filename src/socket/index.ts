@@ -1,4 +1,4 @@
-import { Server }  from "socket.io";
+import { Server } from "socket.io";
 import { registerAttendanceNamespace } from "../features/events/sockets/attendanceSocket";
 
 let io: Server;
@@ -14,7 +14,6 @@ export function initSocket(server: any) {
     console.log(`New client connected: ${socket.id}`);
   });
 
-  // Register feature-specific namespaces after base io setup
   registerAttendanceNamespace(io);
 
   return io;

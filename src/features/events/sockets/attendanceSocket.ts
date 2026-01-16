@@ -1,5 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import { endAttendanceTokensStream, streamAttendanceTokens, verifyAttendance } from "../services/attendanceService";
+import { verifyJWT } from "../../../services/verifyJWT";
 
 function registerAttendanceNamespace(io: Server) {
   const attendanceNs = io.of('/events');
@@ -9,6 +10,15 @@ function registerAttendanceNamespace(io: Server) {
     console.log(`New client connected to attendance namespace: ${socket.id}`);
 
     socket.on('stream-attendance-tokens', (data) => {
+      const { isValid } = verifyJWT(socket.handshake.auth?.token || '');
+      if (!isValid) {
+        socket.emit('attendance-error', { message: 'Unauthorized: Invalid or missing token' });
+        socket.disconnect();
+        return;
+      }
+
+      console.log("socket token", socket.handshake.auth?.token)
+
       console.log('Stream request received:', data);
       const sessionId = socket.id;
       socket.join(sessionId);
@@ -22,6 +32,13 @@ function registerAttendanceNamespace(io: Server) {
     });
 
     socket.on('record-attendance', (data, callbackFunction) => {
+      const { isValid } = verifyJWT(socket.handshake.auth?.token || '');
+      if (!isValid) {
+        socket.emit('attendance-error', { message: 'Unauthorized: Invalid or missing token' });
+        socket.disconnect();
+        return;
+      }
+
       console.log('Attendance marked:', data);
       const verificationResult = verifyAttendance(data.data.token);
       if (callbackFunction) {

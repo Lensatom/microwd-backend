@@ -10,6 +10,6 @@ const eventsRouter = Router();
 // 4. update event
 // 5. delete event
 
-eventsRouter.get('/attendance/record', attendanceController);
+eventsRouter.post('/attendance/record', attendanceController);
 
 export default eventsRouter;
