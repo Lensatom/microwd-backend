@@ -1,14 +1,24 @@
 import { Request, Response } from "express";
-import { verifyAttendance } from "../services/attendanceService";
+import { Event } from "../models/event";
 
-export function attendanceController(req: Request, res: Response) {
-  const { attendanceToken } = req.body as { attendanceToken: string };
+export async function postEventsController(req: Request, res: Response) {
+  const requiredFields = ['name', 'date', 'location', 'description'];
 
-  const { isValid } = verifyAttendance(attendanceToken);
-
-  if (!isValid) {
-    return res.status(400).json({ message: "Invalid attendance token" });
+  for (const field of requiredFields) {
+    if (!req.body[field]) {
+      return res.status(400).json({ message: `Missing required field: ${field}` });
+    }
   }
 
-  res.status(200).json({ message: "Attendance endpoint hit" });
+  const newEvent = {
+    name: req.body.name,
+    date: req.body.date,
+    location: req.body.location,
+    description: req.body.description,
+    additionalInfo: req.body.additionalInfo || [],
+  }
+
+  await Event.create(newEvent);
+
+  return res.status(200).json({ message: "Post events endpoint hit" });
 }

@@ -1,15 +1,11 @@
 import { Router } from 'express';
-import { attendanceController } from '../controllers';
+import { getEventByIdController, getUserEventsController } from '../controllers/getEvent';
+import { postEventsController } from '../controllers/postEvents';
 
 const eventsRouter = Router();
 
-// TODOS:
-// 1. create event
-// 2. get event by id
-// 3. list events
-// 4. update event
-// 5. delete event
-
-eventsRouter.post('/attendance/record', attendanceController);
+eventsRouter.post('/', postEventsController);
+eventsRouter.get('/:id', getEventByIdController);
+eventsRouter.get('/me', getUserEventsController);
 
 export default eventsRouter;
