@@ -1,26 +1,22 @@
+import cors from "cors";
 import express from 'express';
 import http from 'http';
+import { getCorsOptions } from './config/cors';
+import { connectDB } from './database';
 import { router } from './router';
 import { initSocket } from './socket';
-import cors from "cors";
-import { connectDB } from './database';
 
 const app = express();
+const server = http.createServer(app);
+const PORT = process.env.PORT || 4000;
 
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-}))
+app.use(cors(getCorsOptions()));
 
 app.use(express.json());
 
 router(app);
 
-const server = http.createServer(app);
-
-initSocket(server)
-
-const PORT = process.env.PORT || 4000;
+initSocket(server);
 
 async function bootstrap() {
   try {
