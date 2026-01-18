@@ -5,7 +5,7 @@ import { postEventsController } from '../controllers/postEvents';
 const eventsRouter = Router();
 
 eventsRouter.post('/', postEventsController);
-eventsRouter.get('/:id', getEventByIdController);
 eventsRouter.get('/me', getUserEventsController);
+eventsRouter.get('/:id', getEventByIdController);
 
 export default eventsRouter;

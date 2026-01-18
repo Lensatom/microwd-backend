@@ -1,21 +1,24 @@
 import { Request, Response } from "express";
 import { Event } from "../models/event";
+import { AuthRequest } from "../../../types/express";
 
-export async function postEventsController(req: Request, res: Response) {
+export async function postEventsController(req: AuthRequest, res: Response) {
+  const body = req.body;
   const requiredFields = ['name', 'date', 'location', 'description'];
 
   for (const field of requiredFields) {
-    if (!req.body[field]) {
+    if (!body[field]) {
       return res.status(400).json({ message: `Missing required field: ${field}` });
     }
   }
 
   const newEvent = {
-    name: req.body.name,
-    date: req.body.date,
-    location: req.body.location,
-    description: req.body.description,
-    additionalInfo: req.body.additionalInfo || [],
+    name: body.name,
+    date: body.date,
+    location: body.location,
+    description: body.description,
+    additionalInfo: body.additionalInfo || [],
+    user_id: req.userId,
   }
 
   await Event.create(newEvent);

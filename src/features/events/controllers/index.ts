@@ -1,1 +1,0 @@
-export { attendanceController } from './postEvents';

@@ -1,6 +1,8 @@
+import { Request, Response, NextFunction } from "express";
 import { verifyJWT as verifyJWTService } from "../services/verifyJWT";
+import { AuthRequest } from "../types/express";
 
-export function verifyJWT(req: any, res: any, next: any) {
+export function verifyJWT(req: AuthRequest, res: Response, next: NextFunction) {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -13,7 +15,12 @@ export function verifyJWT(req: any, res: any, next: any) {
     return res.status(401).json({ message: "Invalid token" });
   }
 
-  req.userId = decoded.userId;
+  const userId = (decoded as any)?.userId as string | undefined;
+  if (!userId) {
+    return res.status(401).json({ message: "Invalid token payload" });
+  }
+  
+  req.userId = userId;
 
   next();
 }
