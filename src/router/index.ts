@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import eventsRouter from "../features/events/routes";
 import { authRouter } from "../features/authentication/routes";
+import eventsRouter from "../features/events/routes";
+import profileRouter from "../features/users/routes";
 import { verifyJWTMiddleware } from "../middlewares/verifyJWT";
 
 export function router(app: any) {
@@ -13,4 +14,5 @@ export function router(app: any) {
   app.use(verifyJWTMiddleware);
 
   app.use('/events', eventsRouter);
+  app.use("/profile", profileRouter)
 }

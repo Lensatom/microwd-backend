@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { verifyGoogleToken } from "../services/verifyGoogleToken";
-import { User } from "../../profile/models/user";
+import { User } from "../../users/models/user";
 import { JWT_SECRET } from "../../../config/env";
 
 export async function signupController(req: Request, res: Response) {
