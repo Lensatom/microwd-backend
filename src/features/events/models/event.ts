@@ -5,7 +5,7 @@ const eventSchema = new Schema({
   date: { type: Date, required: true },
   location: { type: String, required: true },
   description: { type: String },
-  additionalInfo: { type: [String] },
+  additionalInfoFields: { type: [String] },
   user_id: { type: String, required: true, ref: 'User' },
 })
 

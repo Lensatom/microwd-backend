@@ -17,7 +17,7 @@ export async function postEventsController(req: AuthRequest, res: Response) {
     date: body.date,
     location: body.location,
     description: body.description,
-    additionalInfo: body.additionalInfo || [],
+    additionalInfoFields: body.additionalInfoFields || [],
     user_id: req.userId,
   }
 

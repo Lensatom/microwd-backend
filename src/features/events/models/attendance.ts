@@ -5,7 +5,7 @@ const attendanceSchema = new Schema({
   last_name: { type: String, required: true },
   email: { type: String, required: true },
   event_id: { type: String, required: true, ref: 'Event' },
-  additionalInfo: { type: [{key: String, value: String}] }
+  additionalInfo: { type: [{field: String, value: String}] }
 })
 
 const Attendance = model('Attendance', attendanceSchema);
