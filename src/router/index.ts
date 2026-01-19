@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import eventsRouter from "../features/events/routes";
 import { authRouter } from "../features/authentication/routes";
-import { verifyJWT } from "../middlewares/verifyJWT";
+import { verifyJWTMiddleware } from "../middlewares/verifyJWT";
 
 export function router(app: any) {
   app.get('/', (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export function router(app: any) {
 
   app.use('/auth', authRouter);
 
-  app.use(verifyJWT);
+  app.use(verifyJWTMiddleware);
 
   app.use('/events', eventsRouter);
 }

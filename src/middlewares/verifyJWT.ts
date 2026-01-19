@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyJWT as verifyJWTService } from "../services/verifyJWT";
+import { NextFunction, Response } from "express";
 import { AuthRequest } from "../types/express";
+import { verifyJWTService } from "../services/verifyJWT";
 
-export function verifyJWT(req: AuthRequest, res: Response, next: NextFunction) {
+export function verifyJWTMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -23,4 +23,13 @@ export function verifyJWT(req: AuthRequest, res: Response, next: NextFunction) {
   req.userId = userId;
 
   next();
+}
+
+export function verifySocketJWTMiddleware(socket: any, next: any) {
+  const { isValid } = verifyJWTService(socket.handshake.auth?.token || '');
+  if (!isValid) {
+    socket.emit('attendance-error', { message: 'Unauthorized: Invalid or missing token' });
+    socket.disconnect();
+    return;
+  }
 }

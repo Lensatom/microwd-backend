@@ -6,7 +6,7 @@ const eventSchema = new Schema({
   location: { type: String, required: true },
   description: { type: String },
   additionalInfo: { type: [String] },
-  user_id: { type: String, required: true },
+  user_id: { type: String, required: true, ref: 'User' },
 })
 
 export const Event = model('Event', eventSchema);
