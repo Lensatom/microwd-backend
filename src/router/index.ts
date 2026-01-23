@@ -14,5 +14,5 @@ export function router(app: any) {
   app.use(verifyJWTMiddleware);
 
   app.use('/events', eventsRouter);
-  app.use("/profile", profileRouter)
+  app.use("/user", profileRouter)
 }
