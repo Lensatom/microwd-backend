@@ -8,20 +8,20 @@ let attendanceTokenIntervals: { [key: string]: NodeJS.Timeout } = {};
 
 
 
-export function streamAttendanceTokens(socket: any, event: { id: string; name?: string }) {
+export function streamAttendanceTokens(socket: any, event: { _id: string; name?: string }) {
   const io = getIO();
   const attendanceNs = io.of('/events');
   const sessionId = socket.id;
   const intervalInSeconds = 5;
 
-  if (!event || !event.id) {
+  if (!event || !event._id) {
     socket.emit('attendance-error', { message: 'event payload is required (include event or eventId)' });
     return;
   }
 
   attendanceTokenIntervals[sessionId] = setInterval(() => verifySocketJWTMiddleware(socket, () => {
     try {
-      const payload = { eventId: event.id, name: event.name };
+      const payload = { eventId: event._id, name: event.name };
       const attendanceToken = jwt.sign(payload, secret, { expiresIn: `${intervalInSeconds}s` });
       attendanceNs.to(sessionId).emit('new-attendance-token', { attendanceToken });
     } catch (err) {

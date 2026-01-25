@@ -7,12 +7,13 @@ function registerAttendanceNamespace(io: Server) {
 
   attendanceNs.on('connection', (socket: Socket) => {
     socket.on('stream-attendance-tokens', (data) => {
-      const event = data?.data?.event || null;
+      console.log("|||||", data)
+      const event = data?.event || null;
       verifySocketJWTMiddleware(socket, () => streamAttendanceTokens(socket, event));
     });
 
     socket.on('record-attendance', (data, callbackFunction) => {
-      verifySocketJWTMiddleware(socket, () => verifyAttendance(data.data.token, callbackFunction));
+      verifySocketJWTMiddleware(socket, () => verifyAttendance(data.token, callbackFunction));
     });
 
     socket.on('disconnect', () => {

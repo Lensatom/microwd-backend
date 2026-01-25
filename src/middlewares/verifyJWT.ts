@@ -36,4 +36,5 @@ export function verifySocketJWTMiddleware(socket: any, next: any) {
     socket.disconnect();
     return;
   }
+  next();
 }
