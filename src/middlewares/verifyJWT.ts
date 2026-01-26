@@ -30,11 +30,11 @@ export function verifyJWTMiddleware(req: AuthRequest, res: Response, next: NextF
 }
 
 export function verifySocketJWTMiddleware(socket: any, next: any) {
-  const { isValid } = verifyJWTService(socket.handshake.auth?.token || '');
+  const { isValid, decoded } = verifyJWTService(socket.handshake.auth?.token || '');
   if (!isValid) {
     socket.emit('attendance-error', { message: 'Unauthorized: Invalid or missing token' });
     socket.disconnect();
     return;
   }
-  next();
+  next(decoded);
 }

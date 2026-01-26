@@ -7,13 +7,16 @@ function registerAttendanceNamespace(io: Server) {
 
   attendanceNs.on('connection', (socket: Socket) => {
     socket.on('stream-attendance-tokens', (data) => {
-      console.log("|||||", data)
       const event = data?.event || null;
       verifySocketJWTMiddleware(socket, () => streamAttendanceTokens(socket, event));
     });
 
     socket.on('record-attendance', (data, callbackFunction) => {
-      verifySocketJWTMiddleware(socket, () => verifyAttendance(data.token, callbackFunction));
+      if (!callbackFunction) {
+        socket.emit('attendance-error', { message: 'Callback function is required' });
+        return;
+      }
+      verifySocketJWTMiddleware(socket, (decoded: { userId: string }) => verifyAttendance({...data, userId: decoded.userId}, callbackFunction));
     });
 
     socket.on('disconnect', () => {
