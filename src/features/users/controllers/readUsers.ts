@@ -8,7 +8,6 @@ export async function getMeController(req: AuthRequest, res: Response) {
     const user = await User.findById(userId)
     return res.status(200).json({message: "User data retrieved", user})
   } catch (error) {
-
+    return res.status(500).json({ message: "Failed to retrieve user data", error });
   }
-
 }
