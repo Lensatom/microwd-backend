@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { verifySocketJWTMiddleware } from "../../../middlewares/verifyJWT";
 import { verifyJWTService } from "../../../services/verifyJWT";
 import { getIO } from "../../../socket";
-import { Attendance } from "../../attendnace/models/attendance";
+import { Attendance } from "../../attendance/models/attendance";
 import { User } from "../../users/models/user";
 import { Event } from "../models/event";
 import { JWT_SECRET } from "../../../config/env";

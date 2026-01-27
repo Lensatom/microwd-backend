@@ -2,10 +2,10 @@ import type { Server, Socket } from "socket.io";
 import { endAttendanceTokensStream, streamAttendanceTokens, verifyAttendance } from "../services/attendanceService";
 import { verifySocketJWTMiddleware } from "../../../middlewares/verifyJWT";
 
-function registerAttendanceNamespace(io: Server) {
-  const attendanceNs = io.of('/events');
+function registerEventNamespace(io: Server) {
+  const eventNS = io.of('/events');
 
-  attendanceNs.on('connection', (socket: Socket) => {
+  eventNS.on('connection', (socket: Socket) => {
     socket.on('stream-attendance-tokens', (data) => {
       const event = data?.event || null;
       verifySocketJWTMiddleware(socket, () => streamAttendanceTokens(socket, event));
@@ -25,4 +25,4 @@ function registerAttendanceNamespace(io: Server) {
   });
 }
 
-export { registerAttendanceNamespace };
+export { registerEventNamespace };

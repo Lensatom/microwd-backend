@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../../../types/express";
-import { Attendance } from "../../attendnace/models/attendance";
+import { Attendance } from "../../attendance/models/attendance";
 import { Event } from "../models/event";
 
 export async function getEventByIdController(req: Request, res: Response) {

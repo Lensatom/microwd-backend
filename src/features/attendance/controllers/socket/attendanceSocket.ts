@@ -3,9 +3,9 @@ import { verifySocketJWTMiddleware } from "../../../../middlewares/verifyJWT";
 import { verifyAttendance } from "../../services/attendanceService";
 
 function registerAttendanceNamespace(io: Server) {
-  const attendanceNs = io.of('/attendance');
+  const attendanceNS = io.of('/attendance');
 
-  attendanceNs.on('connection', (socket: Socket) => {
+  attendanceNS.on('connection', (socket: Socket) => {
     socket.on('record-attendance', (data, callbackFunction) => {
       if (!callbackFunction) {
         socket.emit('attendance-error', { message: 'Callback function is required' });

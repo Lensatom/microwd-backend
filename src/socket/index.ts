@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
-import { registerAttendanceNamespace } from "../features/events/sockets/attendanceSocket";
+import { registerAttendanceNamespace } from "../features/attendance/controllers/socket/attendanceSocket";
+import { registerEventNamespace } from "../features/events/sockets/attendanceSocket";
 
 let io: Server;
 
@@ -14,6 +15,7 @@ export function initSocket(server: any) {
     console.log(`New client connected: ${socket.id}`);
   });
 
+  registerEventNamespace(io);
   registerAttendanceNamespace(io);
 
   return io;
