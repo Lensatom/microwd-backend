@@ -31,15 +31,16 @@ export async function getUserEventsController(req: AuthRequest, res: Response) {
 }
 
 
-export async function getAllRecordedAttendanceController(req: AuthRequest, res: Response) {
+export async function getEventAttendanceListController(req: AuthRequest, res: Response) {
   try {
     const userId = req.userId;
-    const eventId = req.params;
+    const { id: eventId } = req.params;
 
     const attendances = await Attendance.find({ user_id: userId, event_id: eventId });
 
-    return res.status(200).json({ message: "retrieved attendances", attendances });
+    return res.status(200).json({ message: "retrieved attendances", data: attendances });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: "Server error" });
   }
 }
