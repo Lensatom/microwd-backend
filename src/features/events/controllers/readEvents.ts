@@ -1,24 +1,32 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AuthRequest } from "../../../types/express";
 import { Attendance } from "../../attendance/models/attendance";
 import { Event } from "../models/event";
 
-export async function getEventByIdController(req: Request, res: Response) {
+export async function getEventByIdController(req: AuthRequest, res: Response) {
   const { id } = req.params;
+  const userId = req.userId;
 
   const event = await Event.findById(id);
   if (!event) {
     return res.status(404).json({ message: "Event not found" });
   }
+  
+  const hasFilled = await Attendance.exists({ user_id: userId, event_id: id });
 
-  return res.status(200).json({ message: "retrieved event", event });
+  const responseData = {
+    ...event.toObject(),
+    hasFilled: !!hasFilled
+  }
+
+  return res.status(200).json({ message: "retrieved event", event: responseData });
 }
 
 
 
 export async function getUserEventsController(req: AuthRequest, res: Response) {
-  const id = req.userId;
-  const events = await Event.find({ user_id: id });
+  const userId = req.userId;
+  const events = await Event.find({ user_id: userId });
   return res.status(200).json({ message: "retrieved events", events });
 }
 
