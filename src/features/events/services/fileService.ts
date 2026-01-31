@@ -5,6 +5,7 @@ import fs from "fs";
 import PDFDocument from "pdfkit";
 import { r2 } from "../../../config/r2";
 import { R2_BUCKET } from "../../../config/env";
+import { Event } from "../models/event";
 
 const bucketFromEnv = R2_BUCKET!;
 if (!bucketFromEnv) {
@@ -153,7 +154,7 @@ export function generatePdf(
 
 export function generateCsv(
   filePath: string,
-  eventName: string,
+  event: { additionalInfoFields: string[] },
   data: ReportRow[]
 ): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -162,12 +163,11 @@ export function generateCsv(
     stream.on("error", reject);
     stream.on("finish", () => resolve());
 
-    // Optional BOM for Excel compatibility
     stream.write("\uFEFF");
 
-    // Header row
-    const headers = ["First Name", "Last Name", "Email", "Submission Time"];
-    stream.write(headers.join(",") + "\n");
+    const additionalInfoFields = event.additionalInfoFields || [];
+    const allHeaders = ["First Name", "Last Name", "Email", ...additionalInfoFields, "Submission Time"];
+    stream.write(allHeaders.join(",") + "\n");
 
     const esc = (value: any) => {
       const str = value == null ? "" : String(value);
@@ -181,6 +181,7 @@ export function generateCsv(
         esc(row.first_name),
         esc(row.last_name),
         esc(row.email),
+        ...additionalInfoFields.map((field: string) => esc((row as any)[field])),
         esc(new Date(row.created_at).toISOString()),
       ].join(",");
       stream.write(line + "\n");

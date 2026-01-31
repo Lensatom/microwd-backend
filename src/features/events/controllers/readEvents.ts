@@ -63,7 +63,6 @@ export async function getEventAttendanceListPdfController(req: AuthRequest, res:
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-    const eventName = event.name;
 
     const attendance = await Attendance.find({ event_id: eventId });
     const dataLength = attendance.length;
@@ -82,7 +81,7 @@ export async function getEventAttendanceListPdfController(req: AuthRequest, res:
     if (!exists) {
       const localPath = path.join(TMP_DIR, fileName);
 
-      await generateCsv(localPath, eventName, attendance);
+      await generateCsv(localPath, event, attendance);
 
       const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
