@@ -66,21 +66,22 @@ export async function verifyAttendance(
     }
 
     const additionalInfoRequired = event.additionalInfoFields || [];
-    if (additionalInfoRequired.length > 0 && (!data?.userData || !data.userData.additionalInfoFields)) {
+    if (additionalInfoRequired.length > 0 && (!data?.userData || !data.userData.additionalInfo)) {
       callbackFunction({ success: false, message: 'Additional info fields are required' });
       return;
     }
-    for (let i = 0; i < additionalInfoRequired.length; i++) {
-      const info = additionalInfoRequired[i];
-      if (
-        data.userData[i].value === undefined ||
-        data.userData[i].value === null ||
-        data.userData[i].value === ''
-      ) {
-        callbackFunction({ success: false, message: `Missing required field: ${info}` });
-        return;
-      }
-    }
+    
+    // for (let i = 0; i < additionalInfoRequired.length; i++) {
+    //   const info = additionalInfoRequired[i];
+    //   if (
+    //     data.userData.additionalInfo[i]?.value === undefined ||
+    //     data.userData.additionalInfo[i]?.value === null ||
+    //     data.userData.additionalInfo[i]?.value === ''
+    //   ) {
+    //     callbackFunction({ success: false, message: `Missing required field: ${info}` });
+    //     return;
+    //   }
+    // }
 
     const existingRecord = await Attendance.findOne({ user_id: data.userId, event_id: data?.eventId });
     if (existingRecord) {
