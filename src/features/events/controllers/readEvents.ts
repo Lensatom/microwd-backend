@@ -1,8 +1,14 @@
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import crypto from "crypto";
 import { Response } from "express";
+import fs from "fs";
+import path from "path";
+import { r2 } from "../../../config/r2";
 import { AuthRequest } from "../../../types/express";
 import { Attendance } from "../../attendance/models/attendance";
 import { Event } from "../models/event";
-import PDFDocument from 'pdfkit';
+import { BUCKET, generateCsv, r2ObjectExists, TMP_DIR } from "../services/fileService";
 
 export async function getEventByIdController(req: AuthRequest, res: Response) {
   const { id } = req.params;
@@ -49,34 +55,78 @@ export async function getEventAttendanceListController(req: AuthRequest, res: Re
 
 
 export async function getEventAttendanceListPdfController(req: AuthRequest, res: Response) {
+  
   try {
-    res.status(200);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="attendance.pdf"');
+    const eventId = req.params.id;
 
-    const doc = new PDFDocument({ margin: 30 });
-
-    doc.on('error', () => {
-      if (!res.headersSent) {
-        res.status(500).json({ message: 'Failed to generate PDF' });
-      } else {
-        res.end();
-      }
-    });
-
-    doc.pipe(res);
-
-    doc.fontSize(20).text('Attendance List', { align: 'left' });
-    doc.moveDown();
-    doc.fontSize(12).text('This is a generated PDF!');
-    doc.text('Here is some more content.');
-
-    doc.end();
-  } catch (e) {
-    console.log(e)
-    if (!res.headersSent) {
-      return res.status(500).json({ message: 'Server error generating PDF' });
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
     }
-    res.end();
+    const eventName = event.name;
+
+    const attendance = await Attendance.find({ event_id: eventId });
+    const dataLength = attendance.length;
+
+    const hash = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(attendance))
+      .digest("hex")
+      .slice(0, 12);
+
+    const fileName = `report-${dataLength}-${hash}.csv`;
+    const key = `reports/${fileName}`;
+
+    const exists = await r2ObjectExists(key);
+
+    if (!exists) {
+      const localPath = path.join(TMP_DIR, fileName);
+
+      await generateCsv(localPath, eventName, attendance);
+
+      const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      const fileBuffer = await fs.promises.readFile(localPath);
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: key,
+          Body: fileBuffer,
+          ContentType: "text/csv",
+          CacheControl: "no-store",
+          Expires: expireAt,
+          ContentLength: fileBuffer.length,
+          ContentDisposition: `attachment; filename=${fileName}`,
+          Metadata: {
+            "auto-delete": "true",
+            ttl: "1d",
+            "expire-at": expireAt.toISOString(),
+          },
+        })
+      );
+
+      fs.unlink(localPath, () => {});
+    }
+
+    const signedUrl = await getSignedUrl(
+      r2,
+      new GetObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+        ResponseContentType: "text/csv",
+        ResponseContentDisposition: `attachment; filename=${fileName}`,
+      }),
+      { expiresIn: 60 * 5 }
+    );
+
+    res.json({
+      length: dataLength,
+      fileName,
+      reused: exists,
+      url: signedUrl,
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Server error" });
   }
 }
