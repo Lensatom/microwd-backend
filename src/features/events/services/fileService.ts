@@ -23,6 +23,7 @@ type ReportRow = {
   first_name: string;
   last_name: string;
   email: string;
+  additionalInfo: { field: string, value: string }[];
   created_at: Date;
 };
 
@@ -181,7 +182,10 @@ export function generateCsv(
         esc(row.first_name),
         esc(row.last_name),
         esc(row.email),
-        ...additionalInfoFields.map((field: string) => esc((row as any)[field])),
+        ...[additionalInfoFields.map((field) => {
+          const infoObj = row.additionalInfo.find(info => info.field === field);
+          return infoObj ? esc(infoObj.value) : esc("");
+        })],
         esc(new Date(row.created_at).toISOString()),
       ].join(",");
       stream.write(line + "\n");

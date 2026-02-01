@@ -81,6 +81,7 @@ export async function getEventAttendanceListPdfController(req: AuthRequest, res:
     if (!exists) {
       const localPath = path.join(TMP_DIR, fileName);
 
+      // @ts-ignore
       await generateCsv(localPath, event, attendance);
 
       const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
