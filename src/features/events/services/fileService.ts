@@ -3,9 +3,8 @@ import {
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import PDFDocument from "pdfkit";
-import { r2 } from "../../../config/r2";
 import { R2_BUCKET } from "../../../config/env";
-import { Event } from "../models/event";
+import { r2 } from "../../../config/r2";
 
 const bucketFromEnv = R2_BUCKET!;
 if (!bucketFromEnv) {
