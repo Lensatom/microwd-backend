@@ -4,9 +4,10 @@ import { Event } from "../../events/models/event";
 import { User } from "../../users/models/user";
 
 export async function verifyAttendance(
-  data: { attendanceToken: string; userData: any, eventId: string, userId: string },
+  data: { attendanceToken: string; additionalInfo?: Record<string, string>, eventId: string, userId: string },
   callbackFunction: (result: { success: boolean; message: string }) => void
 ) {
+  console.log(data);
   try {
     const attendanceToken = data?.attendanceToken;
     if (!attendanceToken) {
@@ -30,28 +31,32 @@ export async function verifyAttendance(
       callbackFunction({ success: false, message: 'Event not found' });
       return;
     }
-    
-    const additionalInfoRequired = event.additionalInfoFields || [];
-    if (additionalInfoRequired.length > 0 && (!data?.userData || !data.userData.additionalInfoFields)) {
-      callbackFunction({ success: false, message: 'Additional info fields are required' });
-      return;
-    }
-    for (let i = 0; i < additionalInfoRequired.length; i++) {
-      const info = additionalInfoRequired[i];
-      if (
-        data.userData[i].value === undefined ||
-        data.userData[i].value === null ||
-        data.userData[i].value === ''
-      ) {
-        callbackFunction({ success: false, message: `Missing required field: ${info}` });
-        return;
-      }
-    }
 
-    const existingRecord = await Attendance.findOne({ user_id: data.userId, event_id: data?.eventId });
+    const existingRecord = await Attendance.findOne({ user_id: data.userId, event_id: data.eventId });
     if (existingRecord) {
       callbackFunction({ success: false, message: 'Attendance already recorded' });
       return;
+    }
+
+    const additionalInfoRequired = event.additionalInfoFields || [];
+    if (additionalInfoRequired.length > 0 && (!data?.additionalInfo)) {
+      callbackFunction({ success: false, message: JSON.stringify(data) });
+      return;
+    }
+
+    let additionalInfoArray = [];
+    
+    for (let i = 0; i < additionalInfoRequired.length; i++) {
+      const info = additionalInfoRequired[i];
+      if (!data?.additionalInfo) {
+        callbackFunction({ success: false, message: `Missing required field: ${info}` });
+        return;
+      }
+      if (!data.additionalInfo[info]) {
+        callbackFunction({ success: false, message: `Missing required field: ${info}` });
+        return;
+      }
+      additionalInfoArray.push({ field: info, value: data.additionalInfo[info] });
     }
 
     const user = await User.findById(data.userId);
@@ -64,7 +69,7 @@ export async function verifyAttendance(
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
-      additionalInfo: data.userData?.additionalInfoFields || [],
+      additionalInfo: additionalInfoArray,
       user_id: data.userId,
       event_id: eventId
     });

@@ -1,6 +1,6 @@
 import type { Server, Socket } from "socket.io";
-import { endAttendanceTokensStream, streamAttendanceTokens, verifyAttendance } from "../services/attendanceService";
 import { verifySocketJWTMiddleware } from "../../../middlewares/verifyJWT";
+import { endAttendanceTokensStream, streamAttendanceTokens } from "../services/attendanceService";
 
 function registerEventNamespace(io: Server) {
   const eventNS = io.of('/events');
@@ -9,14 +9,6 @@ function registerEventNamespace(io: Server) {
     socket.on('stream-attendance-tokens', (data) => {
       const event = data?.event || null;
       verifySocketJWTMiddleware(socket, () => streamAttendanceTokens(socket, event));
-    });
-
-    socket.on('record-attendance', (data, callbackFunction) => {
-      if (!callbackFunction) {
-        socket.emit('attendance-error', { message: 'Callback function is required' });
-        return;
-      }
-      verifySocketJWTMiddleware(socket, (decoded: { userId: string }) => verifyAttendance({...data, userId: decoded.userId}, callbackFunction));
     });
 
     socket.on('disconnect', () => {
