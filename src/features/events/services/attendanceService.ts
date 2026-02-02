@@ -16,16 +16,18 @@ export function streamAttendanceTokens(socket: any, event: { _id: string; name?:
     return;
   }
 
-  attendanceTokenIntervals[sessionId] = setInterval(() => verifySocketJWTMiddleware(socket, () => {
-    try {
-      const payload = { eventId: event._id, name: event.name };
-      const attendanceToken = jwt.sign(payload, JWT_SECRET ?? "", { expiresIn: `${intervalInSeconds}s` });
-      attendanceNs.to(sessionId).emit('new-attendance-token', { attendanceToken });
-    } catch (err) {
-      console.error('Failed to sign attendance token:', err);
-      attendanceNs.to(sessionId).emit('attendance-error', { message: 'Failed to generate token' });
-    }
-  }), intervalInSeconds * 1000);
+  try {
+    const payload = { eventId: event._id, name: event.name };
+    const attendanceToken = jwt.sign(payload, JWT_SECRET ?? "", { expiresIn: `${intervalInSeconds}s` });
+    attendanceNs.to(sessionId).emit('new-attendance-token', { attendanceToken });
+    attendanceTokenIntervals[sessionId] = setTimeout(() => verifySocketJWTMiddleware(
+      socket,
+      () => streamAttendanceTokens(socket, event)
+    ), intervalInSeconds * 1000);
+  } catch (err) {
+    console.error('Failed to sign attendance token:', err);
+    attendanceNs.to(sessionId).emit('attendance-error', { message: 'Failed to generate token' });
+  }
 }
 
 
