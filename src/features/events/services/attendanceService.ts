@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../../../config/env";
 import { verifySocketJWTMiddleware } from "../../../middlewares/verifyJWT";
 import { getIO } from "../../../socket";
+import { encodeWithCrypto } from "../../../services/crypto";
 
 let attendanceTokenIntervals: { [key: string]: NodeJS.Timeout } = {};
 
@@ -18,7 +19,7 @@ export function streamAttendanceTokens(socket: any, event: { _id: string; name?:
 
   try {
     const payload = { eventId: event._id, name: event.name };
-    const attendanceToken = jwt.sign(payload, JWT_SECRET ?? "", { expiresIn: `${intervalInSeconds}s` });
+    const attendanceToken = encodeWithCrypto(JSON.stringify(payload), 5);
     attendanceNs.to(sessionId).emit('new-attendance-token', { attendanceToken });
     attendanceTokenIntervals[sessionId] = setTimeout(() => verifySocketJWTMiddleware(
       socket,

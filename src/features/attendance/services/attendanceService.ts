@@ -1,7 +1,7 @@
-import { verifyJWTService } from "../../../services/verifyJWT";
-import { Attendance } from "../models/attendance";
+import { decodeWithCrypto } from "../../../services/crypto";
 import { Event } from "../../events/models/event";
 import { User } from "../../users/models/user";
+import { Attendance } from "../models/attendance";
 
 export async function verifyAttendance(
   data: { attendanceToken: string; additionalInfo?: Record<string, string>, eventId: string, userId: string },
@@ -15,7 +15,8 @@ export async function verifyAttendance(
       return;
     }
 
-    const { isValid, decoded } = verifyJWTService(attendanceToken);
+    const { isValid, decoded: decodedStr } = decodeWithCrypto(attendanceToken);
+    const decoded = JSON.parse(decodedStr);
     if (!isValid || !decoded) {
       callbackFunction({ success: false, message: 'Invalid attendance token' });
       return;
