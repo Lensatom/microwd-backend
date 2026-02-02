@@ -7,6 +7,7 @@ const eventSchema = new Schema({
   description: { type: String },
   additionalInfoFields: { type: [String] },
   user_id: { type: String, required: true, ref: 'User' },
+  isDeleted: { type: Boolean, default: false }
 })
 
 export const Event = model('Event', eventSchema);

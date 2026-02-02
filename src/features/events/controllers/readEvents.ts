@@ -14,7 +14,7 @@ export async function getEventByIdController(req: AuthRequest, res: Response) {
   const { id } = req.params;
   const userId = req.userId;
 
-  const event = await Event.findById(id);
+  const event = await Event.findOne({ _id: id, isDeleted: false });
   if (!event) {
     return res.status(404).json({ message: "Event not found" });
   }
@@ -23,8 +23,8 @@ export async function getEventByIdController(req: AuthRequest, res: Response) {
 
   const responseData = {
     ...event.toObject(),
-    hasFilled: !!hasFilled
-  }
+    hasFilled: !!hasFilled,
+  };
 
   return res.status(200).json({ message: "retrieved event", event: responseData });
 }
@@ -33,7 +33,7 @@ export async function getEventByIdController(req: AuthRequest, res: Response) {
 
 export async function getUserEventsController(req: AuthRequest, res: Response) {
   const userId = req.userId;
-  const events = await Event.find({ user_id: userId });
+  const events = await Event.find({ user_id: userId, isDeleted: false });
   return res.status(200).json({ message: "retrieved events", events });
 }
 
@@ -42,6 +42,11 @@ export async function getEventAttendanceListController(req: AuthRequest, res: Re
   try {
     const userId = req.userId;
     const { id: eventId } = req.params;
+
+    const event = await Event.findOne({ _id: eventId, isDeleted: false });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
 
     const attendances = await Attendance.find({ user_id: userId, event_id: eventId });
 
@@ -59,17 +64,23 @@ export async function getEventAttendanceListPdfController(req: AuthRequest, res:
   try {
     const eventId = req.params.id;
 
-    const event = await Event.findById(eventId);
+    const event = await Event.findOne({ _id: eventId, isDeleted: false });
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
 
     const attendance = await Attendance.find({ event_id: eventId });
-    const dataLength = attendance.length;
+    const rows:any = attendance.map((a) => ({
+      first_name: a.first_name,
+      last_name: a.last_name,
+      email: a.email,
+      created_at: a.created_at,
+    }));
+    const dataLength = rows.length;
 
     const hash = crypto
       .createHash("sha256")
-      .update(JSON.stringify(attendance))
+      .update(JSON.stringify(rows))
       .digest("hex")
       .slice(0, 12);
 
@@ -80,9 +91,7 @@ export async function getEventAttendanceListPdfController(req: AuthRequest, res:
 
     if (!exists) {
       const localPath = path.join(TMP_DIR, fileName);
-
-      // @ts-ignore
-      await generateCsv(localPath, event, attendance);
+      await generateCsv(localPath, event, rows);
 
       const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
