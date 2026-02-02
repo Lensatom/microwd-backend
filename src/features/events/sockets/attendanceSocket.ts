@@ -6,13 +6,15 @@ function registerEventNamespace(io: Server) {
   const eventNS = io.of('/events');
 
   eventNS.on('connection', (socket: Socket) => {
+    let event: any;
+
     socket.on('stream-attendance-tokens', (data) => {
-      const event = data?.event || null;
+      event = data?.event || null;
       verifySocketJWTMiddleware(socket, () => streamAttendanceTokens(socket, event));
     });
 
     socket.on('disconnect', () => {
-      endAttendanceTokensStream(socket.id);
+      endAttendanceTokensStream(event?._id);
     });
   });
 }
