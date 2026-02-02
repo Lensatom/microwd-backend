@@ -59,7 +59,7 @@ export async function getEventAttendanceListController(req: AuthRequest, res: Re
 
 
 
-export async function getEventAttendanceListPdfController(req: AuthRequest, res: Response) {
+export async function getEventAttendanceListCsvController(req: AuthRequest, res: Response) {
   
   try {
     const eventId = req.params.id;
