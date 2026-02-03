@@ -5,6 +5,6 @@ import { updateMeController } from "../controllers/updateUsers";
 const profileRouter = Router()
 
 profileRouter.get("/", getMeController)
-profileRouter.put("/me", updateMeController)
+// profileRouter.put("/me", updateMeController)
 
 export default profileRouter;
