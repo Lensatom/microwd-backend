@@ -1,20 +1,18 @@
-import { Request, Response } from "express";
+import { Router } from "express";
+import attendanceRouter from "../features/attendance/routes";
 import { authRouter } from "../features/authentication/routes";
 import eventsRouter from "../features/events/routes";
 import profileRouter from "../features/users/routes";
 import { verifyJWTMiddleware } from "../middlewares/verifyJWT";
-import attendanceRouter from "../features/attendance/routes";
 
-export function router(app: any) {
-  app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!');
-  });
+const appRouter = Router();
 
-  app.use('/auth', authRouter);
+appRouter.use('/auth', authRouter);
 
-  app.use(verifyJWTMiddleware);
+appRouter.use(verifyJWTMiddleware);
 
-  app.use('/events', eventsRouter);
-  app.use('/attendance', attendanceRouter);
-  app.use("/user", profileRouter)
-}
+appRouter.use('/events', eventsRouter);
+appRouter.use('/attendance', attendanceRouter);
+appRouter.use("/user", profileRouter)
+
+export default appRouter;

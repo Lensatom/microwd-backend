@@ -3,7 +3,7 @@ import express from 'express';
 import http from 'http';
 import { getCorsOptions } from './config/cors';
 import { connectDB } from './database';
-import { router } from './router';
+import appRouter from './router';
 import { initSocket } from './socket';
 
 const app = express();
@@ -14,7 +14,11 @@ app.use(cors(getCorsOptions()));
 
 app.use(express.json());
 
-router(app);
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Server is healthy' });
+});
+
+app.use("/api/v1", appRouter);
 
 initSocket(server);
 
