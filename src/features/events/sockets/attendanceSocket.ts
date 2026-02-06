@@ -3,7 +3,7 @@ import { verifySocketJWTMiddleware } from "../../../middlewares/verifyJWT";
 import { endAttendanceTokensStream, streamAttendanceTokens } from "../services/attendanceService";
 
 function registerEventNamespace(io: Server) {
-  const eventNS = io.of('/events');
+  const eventNS = io.of(`/api/v1/events`);
 
   eventNS.on('connection', (socket: Socket) => {
     let event: any;

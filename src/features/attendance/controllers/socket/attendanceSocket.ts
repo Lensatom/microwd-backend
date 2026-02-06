@@ -3,7 +3,7 @@ import { verifySocketJWTMiddleware } from "../../../../middlewares/verifyJWT";
 import { verifyAttendance } from "../../services/attendanceService";
 
 function registerAttendanceNamespace(io: Server) {
-  const attendanceNS = io.of('/attendance');
+  const attendanceNS = io.of('/api/v1/attendance');
 
   attendanceNS.on('connection', (socket: Socket) => {
     socket.on('record-attendance', (data, callbackFunction) => {
