@@ -1,10 +1,11 @@
 import cors from "cors";
-import express from 'express';
-import http from 'http';
-import { getCorsOptions } from './config/cors';
-import { connectDB } from './database';
-import appRouter from './router';
-import { initSocket } from './socket';
+import express from "express";
+import http from "http";
+import { getCorsOptions } from "./config/cors";
+import { connectDB } from "./database";
+import appRouter from "./router";
+import { initSocket } from "./socket";
+import "dotenv/config";
 
 const app = express();
 const server = http.createServer(app);
@@ -14,8 +15,8 @@ app.use(cors(getCorsOptions()));
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Server is healthy' });
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Server is healthy" });
 });
 
 app.use("/api/v1", appRouter);

@@ -40,7 +40,6 @@ export async function getUserEventsController(req: AuthRequest, res: Response) {
 
 export async function getEventAttendanceListController(req: AuthRequest, res: Response) {
   try {
-    const userId = req.userId;
     const { id: eventId } = req.params;
 
     const event = await Event.findOne({ _id: eventId, isDeleted: false });
@@ -48,7 +47,7 @@ export async function getEventAttendanceListController(req: AuthRequest, res: Re
       return res.status(404).json({ message: "Event not found" });
     }
 
-    const attendances = await Attendance.find({ user_id: userId, event_id: eventId });
+    const attendances = await Attendance.find({ event_id: eventId });
 
     return res.status(200).json({ message: "retrieved attendances", data: attendances });
   } catch (error) {
